@@ -11,4 +11,4 @@ script:
 
 after_success:
   - gox -osarch="linux/amd64 windows/amd64" -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
-  - ghr --replace --prerelease --debug pre-release dist/
+  - ghr --delete --replace --prerelease --debug pre-release dist/
