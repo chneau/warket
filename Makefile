@@ -17,8 +17,18 @@ build:
 test:
 	go test --count=1 ./pkg/client/...
 
+dist:
+	gox -verbose -ldflags '-s -w -extldflags "-static"' -osarch="linux/amd64 windows/amd64" -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
+
+release:
+	ghr --delete --replace --prerelease --debug pre-release dist/
+
+dev-dist:
+	go get github.com/mitchellh/gox
+	go get github.com/tcnksm/ghr
+
 clean:
-	rm -rf bin
+	rm -rf bin dist
 
 # deps:
 # 	GO111MODULE=on go mod vendor -v
