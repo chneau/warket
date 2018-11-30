@@ -9,10 +9,10 @@
 			"revisionTime": "2018-08-09T15:42:50Z"
 		},
 		{
-			"checksumSHA1": "hKkEXTXi2ehAjlWLCHYwFJWXxU0=",
+			"checksumSHA1": "joXKIKt4aSzMOsKdlCWKezM5na8=",
 			"path": "github.com/buger/goterm",
-			"revision": "6d19e6a8df12fdfc44a90a24b677a6d04a80b91f",
-			"revisionTime": "2018-04-16T18:44:41Z"
+			"revision": "c206103e1f37c0c6c5c039706305ea2aa6e8ad3b",
+			"revisionTime": "2018-11-15T08:31:27Z"
 		},
 		{
 			"checksumSHA1": "BxH9xJUqczhpL57gfKZe2/VlBHY=",
@@ -33,10 +33,10 @@
 			"revisionTime": "2018-08-30T10:17:45Z"
 		},
 		{
-			"checksumSHA1": "sJ2oWdDZGn7javNn0E5IfzltkKE=",
+			"checksumSHA1": "5LK/JjBog0PqfJb9GUvuAXfqvYU=",
 			"path": "github.com/mattn/go-runewidth",
-			"revision": "b20a3daf6a39840c202fd42cc23d53607162b045",
-			"revisionTime": "2018-10-25T05:26:59Z"
+			"revision": "c88d7e5f2e24de48a200a2655ac8a0910be9a0f7",
+			"revisionTime": "2018-11-17T16:33:26Z"
 		},
 		{
 			"checksumSHA1": "ttEN1Aupb7xpPMkQLqb3tzLFdXs=",
@@ -45,16 +45,16 @@
 			"revisionTime": "2015-09-17T21:48:07Z"
 		},
 		{
-			"checksumSHA1": "llyApDxQeu6FeMSjM6X4QAOUiV8=",
+			"checksumSHA1": "iAaX0GtKtIRjvqvIhogId+2Vfo8=",
 			"path": "github.com/olekukonko/tablewriter",
-			"revision": "be2c049b30ccd4d3fd795d6bf7dce74e42eeedaa",
-			"revisionTime": "2018-09-12T03:50:03Z"
+			"revision": "e6d60cf7ba1f42d86d54cdf5508611c4aafb3970",
+			"revisionTime": "2018-10-26T07:14:10Z"
 		},
 		{
-			"checksumSHA1": "6mbhIrjrE59ZEKHLVwDGrmKMdL0=",
+			"checksumSHA1": "gLgUURKoPyyVQo3i8UL4Yq8MsAw=",
 			"path": "github.com/schollz/progressbar",
-			"revision": "174fa38cf3c3197ba99ada4c98deab7f79d07069",
-			"revisionTime": "2018-10-15T02:10:07Z"
+			"revision": "dfe83207a3b937a6bd864b993a3350258bd67007",
+			"revisionTime": "2018-11-21T12:31:58Z"
 		},
 		{
 			"checksumSHA1": "1UGRwtRmdzxssa5Vg3SFBbgWwOE=",
@@ -63,10 +63,10 @@
 			"revisionTime": "2018-04-17T22:48:46Z"
 		},
 		{
-			"checksumSHA1": "0lYy3rZu/WgPAXXLHPLN1YWEZmI=",
+			"checksumSHA1": "DgVXiDZy1nRegnkhWu1EAyQWhQ8=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "66b7b1311ac80bbafcd2daeef9a5e6e2cd1e2399",
-			"revisionTime": "2018-11-07T12:45:52Z"
+			"revision": "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31",
+			"revisionTime": "2018-11-19T12:01:13Z"
 		}
 	],
 	"rootPath": "github.com/chneau/warket"

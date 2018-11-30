@@ -57,6 +57,10 @@ type config struct {
 	maxBytes   int
 	// show the iterations per second
 	showIterationsPerSecond bool
+	showIterationsCount     bool
+
+	// minimum time to wait in between updates
+	throttleDuration time.Duration
 }
 
 // Theme defines the elements of the bar
@@ -121,10 +125,25 @@ func OptionSetBytes(maxBytes int) Option {
 	}
 }
 
+// OptionShowCount will also print current count out of total
+func OptionShowCount() Option {
+	return func(p *ProgressBar) {
+		p.config.showIterationsCount = true
+	}
+}
+
 // OptionShowIts will also print the iterations/second
 func OptionShowIts() Option {
 	return func(p *ProgressBar) {
 		p.config.showIterationsPerSecond = true
+	}
+}
+
+// OptionThrottle will wait the specified duration before updating again. The default
+// duration is 0 seconds.
+func OptionThrottle(duration time.Duration) Option {
+	return func(p *ProgressBar) {
+		p.config.throttleDuration = duration
 	}
 }
 
@@ -135,10 +154,11 @@ func NewOptions(max int, options ...Option) *ProgressBar {
 	b := ProgressBar{
 		state: getBlankState(),
 		config: config{
-			writer: os.Stdout,
-			theme:  defaultTheme,
-			width:  40,
-			max:    max,
+			writer:           os.Stdout,
+			theme:            defaultTheme,
+			width:            40,
+			max:              max,
+			throttleDuration: 0 * time.Nanosecond,
 		},
 	}
 
@@ -226,8 +246,18 @@ func (p *ProgressBar) Clear() error {
 // rendered line width. this function is not thread-safe,
 // so it must be called with an acquired lock.
 func (p *ProgressBar) render() error {
+	// make sure that the rendering is not happening too quickly
+	// but always show if the currentNum reaches the max
+	if time.Since(p.state.lastShown).Nanoseconds() < p.config.throttleDuration.Nanoseconds() &&
+		p.state.currentNum < p.config.max {
+		return nil
+	}
+
 	// first, clear the existing progress bar
 	err := clearProgressBar(p.config, p.state)
+	if err != nil {
+		return err
+	}
 
 	// then, re-render the current progress bar
 	w, err := renderProgressBar(p.config, p.state)
@@ -238,6 +268,8 @@ func (p *ProgressBar) render() error {
 	if w > p.state.maxLineWidth {
 		p.state.maxLineWidth = w
 	}
+
+	p.state.lastShown = time.Now()
 
 	return nil
 }
@@ -288,9 +320,13 @@ func renderProgressBar(c config, s state) (int, error) {
 		bytesString = fmt.Sprintf("(%2.1f kB/s)", kbPerSecond)
 	}
 
-	if c.showIterationsPerSecond {
+	if c.showIterationsPerSecond && !c.showIterationsCount {
 		// replace bytesString if used
 		bytesString = fmt.Sprintf("(%2.0f it/s)", float64(s.currentNum)/time.Since(s.startTime).Seconds())
+	} else if !c.showIterationsPerSecond && c.showIterationsCount {
+		bytesString = fmt.Sprintf("(%d/%d)", s.currentNum, c.max)
+	} else if c.showIterationsPerSecond && c.showIterationsCount {
+		bytesString = fmt.Sprintf("(%d/%d, %2.0f it/s)", s.currentNum, c.max, float64(s.currentNum)/time.Since(s.startTime).Seconds())
 	}
 
 	str := fmt.Sprintf("\r%s%4d%% %s%s%s%s %s [%s:%s]",
