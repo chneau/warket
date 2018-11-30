@@ -128,6 +128,9 @@ func (ll lines) String() string {
 }
 
 func (ll lines) sort(sorting string) {
+	slice.Sort(ll.ll, func(i, j int) bool {
+		return ll.ll[i].diff > ll.ll[j].diff
+	})
 	switch sorting {
 	case "place":
 		slice.Sort(ll.ll, func(i, j int) bool {
