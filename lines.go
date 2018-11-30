@@ -132,10 +132,22 @@ func (ll lines) sort(sorting string) {
 		return ll.ll[i].diff > ll.ll[j].diff
 	})
 	switch sorting {
+	case "qtt":
+		slice.Sort(ll.ll, func(i, j int) bool {
+			return ll.ll[i].quantity > ll.ll[j].quantity
+		})
 	case "place":
 		slice.Sort(ll.ll, func(i, j int) bool {
 			return ll.ll[i].place > ll.ll[j].place
 		})
+	case "price":
+		fallthrough
+	case "plat":
+		slice.Sort(ll.ll, func(i, j int) bool {
+			return ll.ll[i].price > ll.ll[j].price
+		})
+	case "diff":
+		return
 	case "name":
 		fallthrough
 	default:
