@@ -10,10 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
-
-	"github.com/bradfitz/slice"
 	"github.com/chneau/warket/pkg/client"
+	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -130,14 +128,14 @@ func (ll lines) String() string {
 func (ll lines) sort(sorting string) {
 	switch sorting {
 	case "qtt":
-		slice.Sort(ll.ll, func(i, j int) bool {
+		sort.Slice(ll.ll, func(i, j int) bool {
 			if ll.ll[i].quantity == ll.ll[j].quantity {
 				return ll.ll[i].diff > ll.ll[j].diff
 			}
 			return ll.ll[i].quantity > ll.ll[j].quantity
 		})
 	case "place":
-		slice.Sort(ll.ll, func(i, j int) bool {
+		sort.Slice(ll.ll, func(i, j int) bool {
 			if ll.ll[i].place == ll.ll[j].place {
 				return ll.ll[i].diff > ll.ll[j].diff
 			}
@@ -146,20 +144,20 @@ func (ll lines) sort(sorting string) {
 	case "price":
 		fallthrough
 	case "plat":
-		slice.Sort(ll.ll, func(i, j int) bool {
+		sort.Slice(ll.ll, func(i, j int) bool {
 			if ll.ll[i].price == ll.ll[j].price {
 				return ll.ll[i].diff > ll.ll[j].diff
 			}
 			return ll.ll[i].price > ll.ll[j].price
 		})
 	case "diff":
-		slice.Sort(ll.ll, func(i, j int) bool {
+		sort.Slice(ll.ll, func(i, j int) bool {
 			return ll.ll[i].diff > ll.ll[j].diff
 		})
 	case "name":
 		fallthrough
 	default:
-		slice.Sort(ll.ll, func(i, j int) bool {
+		sort.Slice(ll.ll, func(i, j int) bool {
 			if ll.ll[i].item == ll.ll[j].item {
 				return ll.ll[i].diff > ll.ll[j].diff
 			}
