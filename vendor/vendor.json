@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "pkbjLBkb2ICTPiyK5JXorXLgSlU=",
-			"path": "github.com/bradfitz/slice",
-			"revision": "2b758aa73013d2b1f11077aeca87ea042a1438bf",
-			"revisionTime": "2018-08-09T15:42:50Z"
-		},
-		{
 			"checksumSHA1": "joXKIKt4aSzMOsKdlCWKezM5na8=",
 			"path": "github.com/buger/goterm",
 			"revision": "c206103e1f37c0c6c5c039706305ea2aa6e8ad3b",
@@ -21,52 +15,46 @@
 			"revisionTime": "2018-10-10T23:13:11Z"
 		},
 		{
-			"checksumSHA1": "SEnjvwVyfuU2xBaOfXfwPD5MZqk=",
+			"checksumSHA1": "XCrIQIhBqX1Ierm/Uz9lLjizT8c=",
 			"path": "github.com/mattn/go-colorable",
-			"revision": "efa589957cd060542a26d2dd7832fd6a6c6c3ade",
-			"revisionTime": "2018-03-10T13:32:14Z"
+			"revision": "98ec13f34aabf44cc914c65a1cfb7b9bc815aef1",
+			"revisionTime": "2019-09-30T17:34:38Z"
 		},
 		{
-			"checksumSHA1": "GiVgQkx5acnq+JZtYiuHPlhHoso=",
+			"checksumSHA1": "IQ7SsIWs24sdmY9WnHNf3YV99Yc=",
 			"path": "github.com/mattn/go-isatty",
-			"revision": "3fb116b820352b7f0c281308a4d6250c22d94e27",
-			"revisionTime": "2018-08-30T10:17:45Z"
+			"revision": "0e9ddb7c0c0aef74fa25eaba4141e6b5ab7aca2a",
+			"revisionTime": "2019-10-09T15:56:15Z"
 		},
 		{
-			"checksumSHA1": "5LK/JjBog0PqfJb9GUvuAXfqvYU=",
+			"checksumSHA1": "qR7D38Zmn9TPUvGn64k+r0+Kq1c=",
 			"path": "github.com/mattn/go-runewidth",
-			"revision": "c88d7e5f2e24de48a200a2655ac8a0910be9a0f7",
-			"revisionTime": "2018-11-17T16:33:26Z"
+			"revision": "703b5e6b11ae25aeb2af9ebb5d5fdf8fa2575211",
+			"revisionTime": "2018-12-18T00:06:49Z"
 		},
 		{
-			"checksumSHA1": "ttEN1Aupb7xpPMkQLqb3tzLFdXs=",
+			"checksumSHA1": "T8ZqoYpAeehnFMDOmQ2yNqS3scY=",
 			"path": "github.com/mitchellh/colorstring",
-			"revision": "8631ce90f28644f54aeedcb3e389a85174e067d1",
-			"revisionTime": "2015-09-17T21:48:07Z"
+			"revision": "d06e56a500db4d08c33db0b79461e7c9beafca2d",
+			"revisionTime": "2019-02-13T21:29:51Z"
 		},
 		{
-			"checksumSHA1": "iAaX0GtKtIRjvqvIhogId+2Vfo8=",
+			"checksumSHA1": "C2jnBks3LctebwDmLMoq/zYZex0=",
 			"path": "github.com/olekukonko/tablewriter",
-			"revision": "e6d60cf7ba1f42d86d54cdf5508611c4aafb3970",
-			"revisionTime": "2018-10-26T07:14:10Z"
+			"revision": "cc27d85e17cec9768d2ac401ea5d619a9628f16d",
+			"revisionTime": "2019-06-18T03:32:46Z"
 		},
 		{
-			"checksumSHA1": "gLgUURKoPyyVQo3i8UL4Yq8MsAw=",
+			"checksumSHA1": "AMn2Q5scr13rS6Mt1Q/sCS4eEjo=",
 			"path": "github.com/schollz/progressbar",
-			"revision": "dfe83207a3b937a6bd864b993a3350258bd67007",
-			"revisionTime": "2018-11-21T12:31:58Z"
+			"revision": "fd48575c2923d213a5e554402aa5edf461b19596",
+			"revisionTime": "2019-09-27T19:01:52Z"
 		},
 		{
-			"checksumSHA1": "1UGRwtRmdzxssa5Vg3SFBbgWwOE=",
-			"path": "go4.org/reflectutil",
-			"revision": "9599cf28b011184741f249bd9f9330756b506cbc",
-			"revisionTime": "2018-04-17T22:48:46Z"
-		},
-		{
-			"checksumSHA1": "DgVXiDZy1nRegnkhWu1EAyQWhQ8=",
+			"checksumSHA1": "l5odpUnGxutBJZ48Qm+AlFtI4Qs=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31",
-			"revisionTime": "2018-11-19T12:01:13Z"
+			"revision": "06d7bd2c5f4f4a6cc6e910b611851044253bd7d1",
+			"revisionTime": "2019-10-08T06:42:09Z"
 		}
 	],
 	"rootPath": "github.com/chneau/warket"
