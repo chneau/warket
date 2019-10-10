@@ -21,9 +21,9 @@ type line struct {
 	item     string
 	quantity int
 	place    int
-	price    int
-	diff     int
-	best     []int
+	price    float64
+	diff     float64
+	best     []float64
 }
 
 type lines struct {
@@ -87,7 +87,7 @@ func (ll lines) String() string {
 	}
 	data := [][]string{}
 	for _, i := range ll.ll {
-		diff := strconv.Itoa(i.diff)
+		diff := strconv.FormatFloat(i.diff, 'f', 0, 64)
 		if i.diff > 0 {
 			diff = "+" + diff
 		}
@@ -95,9 +95,9 @@ func (ll lines) String() string {
 			i.item,
 			strconv.Itoa(i.quantity),
 			strconv.Itoa(i.place),
-			strconv.Itoa(i.price),
+			strconv.FormatFloat(i.price, 'f', 0, 64),
 			diff,
-			strings.Join(intsToStrings(i.best), " "),
+			strings.Join(floatsToStrings(i.best), " "),
 		})
 	}
 	reader, writer := io.Pipe()
@@ -181,7 +181,7 @@ func newLines(username string, all []client.Order, orderType string) lines {
 			if err != nil {
 				panic(err)
 			}
-			all := []int{}
+			all := []float64{}
 			position := 1
 			for _, o := range orders {
 				if o.User.Status == "ingame" && o.OrderType == i.OrderType && o.ModRank == i.ModRank && o.User.IngameName != username && o.Region == i.Region {
@@ -197,14 +197,14 @@ func newLines(username string, all []client.Order, orderType string) lines {
 					}
 				}
 			}
-			sort.Ints(all)
+			sort.Float64s(all)
 			if i.OrderType == "buy" {
 				for i := len(all)/2 - 1; i >= 0; i-- { // reverse
 					opp := len(all) - 1 - i
 					all[i], all[opp] = all[opp], all[i]
 				}
 			}
-			diff := 0
+			diff := 0.
 			if len(all) > 0 {
 				diff = i.Platinum - all[0]
 			}

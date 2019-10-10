@@ -15,6 +15,13 @@ import (
 	"github.com/chneau/warket/pkg/client"
 )
 
+func floatsToStrings(floats []float64) (strings []string) {
+	for i := range floats {
+		strings = append(strings, strconv.FormatFloat(floats[i], 'f', 0, 64))
+	}
+	return
+}
+
 func intsToStrings(ints []int) (strings []string) {
 	for i := range ints {
 		strings = append(strings, strconv.Itoa(ints[i]))

@@ -54,7 +54,7 @@ type Order struct {
 	User         *User      `json:"user"`
 	LastUpdate   *time.Time `json:"last_update"`
 	ClosedDate   *time.Time `json:"closed_date"`
-	Platinum     int        `json:"platinum"`
+	Platinum     float64    `json:"platinum"`
 	OrderType    string     `json:"order_type"`
 	Region       string     `json:"region"`
 	Platform     string     `json:"platform"`
