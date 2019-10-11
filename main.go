@@ -6,13 +6,15 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/chneau/warket/pkg/client"
+
 	"github.com/urfave/cli"
 )
 
 func init() {
 	log.SetPrefix("[WARKET] ")
 	log.SetOutput(os.Stdout)
-	log.SetFlags(log.LstdFlags | log.Llongfile)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	go func() {
@@ -73,6 +75,25 @@ func main() {
 					d.username = args[0]
 				}
 				d.run()
+				return nil
+			},
+		},
+		{
+			Name:    "snipe",
+			Aliases: []string{"s"},
+			Usage:   "snipe market",
+			Action: func(c *cli.Context) error {
+				log.Println("hello world !")
+				ch := make(chan *client.Order)
+				go func() {
+					err := client.SubWS(ch)
+					if err != nil {
+						log.Fatalln(err)
+					}
+				}()
+				for order := range ch {
+					log.Println(order.OrderType, order.Platinum, order.Item.URLName)
+				}
 				return nil
 			},
 		},

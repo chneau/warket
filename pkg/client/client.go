@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -191,4 +193,47 @@ func FetchUserReview(userName string) ([]Review, error) {
 		return nil, errors.New(data.Error)
 	}
 	return data.Payload.Reviews, nil
+}
+
+func SubWS(ch chan<- *Order) error {
+	h := http.Header{}
+	h.Set("Pragma", "no-cache")
+	h.Set("Origin", "https://warframe.market")
+	h.Set("Accept-Encoding", "gzip, deflate, br")
+	h.Set("Accept-Language", "en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6")
+	h.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36")
+	h.Set("Cache-Control", "no-cache")
+
+	ws, _, err := websocket.DefaultDialer.Dial("wss://warframe.market/socket?platform=pc", h)
+	if err != nil {
+		return err
+	}
+	err = ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"@WS/SUBSCRIBE/MOST_RECENT"}`))
+	for {
+		result := &struct {
+			Type string
+		}{}
+		_, b, err := ws.ReadMessage()
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return err
+		}
+		if result.Type != `@WS/SUBSCRIPTIONS/MOST_RECENT/NEW_ORDER` {
+			continue
+		}
+		obj := &struct {
+			Payload struct {
+				Order Order
+			}
+		}{}
+		err = json.Unmarshal(b, obj)
+		if err != nil {
+			return err
+		}
+		ch <- &obj.Payload.Order
+	}
+	return nil
 }
