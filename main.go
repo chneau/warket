@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sort"
 
 	"github.com/chneau/warket/pkg/client"
 
@@ -92,7 +93,37 @@ func main() {
 					}
 				}()
 				for order := range ch {
-					log.Println(order.OrderType, order.Platinum, order.Item.URLName)
+					if order.OrderType != "sell" {
+						continue
+					}
+					orders, err := client.FetchItemOrders(order.Item.URLName)
+					if err != nil {
+						log.Fatalln(err)
+					}
+					// TODO remove copy pasta and create a funciton
+					all := []float64{}
+					position := 1
+					for _, o := range orders {
+						if o.User.Status == "ingame" && o.OrderType == order.OrderType && o.ModRank == order.ModRank && o.Region == order.Region {
+							all = append(all, o.Platinum)
+							if order.OrderType == "buy" {
+								if o.Platinum > order.Platinum {
+									position++
+								}
+							} else {
+								if order.Platinum > o.Platinum {
+									position++
+								}
+							}
+						}
+					}
+					sort.Float64s(all)
+					if len(all) > 10 {
+						all = all[:10]
+					}
+					// TODO nice formating
+					// TODO potential gain for buy/sell
+					log.Println(order.OrderType, order.Platinum, order.Item.URLName, position, all)
 				}
 				return nil
 			},
