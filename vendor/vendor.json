@@ -15,6 +15,12 @@
 			"revisionTime": "2018-10-10T23:13:11Z"
 		},
 		{
+			"checksumSHA1": "ajAqUByI39Sfm99F/ZNOguPP3Mk=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b",
+			"revisionTime": "2019-08-25T01:20:11Z"
+		},
+		{
 			"checksumSHA1": "XCrIQIhBqX1Ierm/Uz9lLjizT8c=",
 			"path": "github.com/mattn/go-colorable",
 			"revision": "98ec13f34aabf44cc914c65a1cfb7b9bc815aef1",
@@ -51,10 +57,16 @@
 			"revisionTime": "2019-09-27T19:01:52Z"
 		},
 		{
+			"checksumSHA1": "dVpzytU2olpCFfTyMZ5L421ew3o=",
+			"path": "github.com/urfave/cli",
+			"revision": "8dcb75dc06095523e813156e4fa4bbc660b45422",
+			"revisionTime": "2019-10-10T19:35:04Z"
+		},
+		{
 			"checksumSHA1": "l5odpUnGxutBJZ48Qm+AlFtI4Qs=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "06d7bd2c5f4f4a6cc6e910b611851044253bd7d1",
-			"revisionTime": "2019-10-08T06:42:09Z"
+			"revision": "b09406accb4736d857a32bf9444cd7edae2ffa79",
+			"revisionTime": "2019-10-10T09:17:53Z"
 		}
 	],
 	"rootPath": "github.com/chneau/warket"
