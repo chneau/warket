@@ -49,16 +49,16 @@ func (ll lines) diff(other *lines) (result []string) {
 				res := fmt.Sprintf("%s is now ", color.MagentaString(n.item))
 				things := []string{}
 				if qtt {
-					things = append(things, color.WhiteString("# %d -> %d", o.quantity, n.quantity))
+					things = append(things, color.WhiteString("# %v -> %v", o.quantity, n.quantity))
 				}
 				if place {
-					things = append(things, color.GreenString("N° %d -> %d", o.place, n.place))
+					things = append(things, color.GreenString("N° %v -> %v", o.place, n.place))
 				}
 				if price {
-					things = append(things, color.HiBlueString("$ %d -> %d", o.price, n.price))
+					things = append(things, color.HiBlueString("$ %v -> %v", o.price, n.price))
 				}
 				if diff {
-					things = append(things, color.HiRedString("± %d -> %d", o.diff, n.diff))
+					things = append(things, color.HiRedString("± %v -> %v", o.diff, n.diff))
 				}
 				res += strings.Join(things, ", ")
 				res += "."
