@@ -4,15 +4,15 @@
 .EXPORT_ALL_VARIABLES:
 .PHONY: run deps build clean exec test
 
-name=$(shell basename $(CURDIR))
+NAME=$(shell basename $(CURDIR))
 
 run: build exec clean
 
 exec:
-	./bin/${name}
+	./bin/${NAME}
 
 build:
-	CGO_ENABLED=0 go build -o bin/${name} -ldflags '-s -w -extldflags "-static"'
+	CGO_ENABLED=0 go build -trimpath -o bin/${NAME} -ldflags '-s -w -extldflags "-static"'
 
 test:
 	go test --count=1 ./pkg/client/...
@@ -34,6 +34,4 @@ deps:
 	go mod init || true
 	go mod tidy
 	go mod verify
-
-dev:
-	go get -u -v github.com/kardianos/govendor
+	go get -u -v
