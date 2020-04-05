@@ -10,7 +10,7 @@ import (
 	"github.com/buger/goterm"
 	"github.com/chneau/warket/pkg/client"
 	"github.com/mattn/go-colorable"
-	"github.com/schollz/progressbar"
+	"github.com/schollz/progressbar/v3"
 )
 
 func floatsToStrings(floats []float64) (strings []string) {
