@@ -31,7 +31,7 @@ clean:
 	rm -rf bin dist
 
 deps:
+	rm -f go.mod go.sum
 	go mod init || true
+	go get -u ./...
 	go mod tidy
-	go mod verify
-	go get -u -v
