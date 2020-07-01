@@ -14,7 +14,7 @@ Then, install Go.
 `choco install golang`
 
 Then, install this repo.  
-`go get -u -v github.com/chneau/warket`
+`GO111MODULE=on go get -u -v github.com/chneau/warket`
 
 If on Windows, be sure to have this in your PATH system environment variable:  
 `%userprofile%\go\bin`
