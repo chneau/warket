@@ -25,17 +25,18 @@ func FetchItems() ([]Item, error) {
 	defer res.Body.Close()
 	data := struct {
 		Payload struct {
-			Items struct {
-				En []Item
-			}
+			Items []Item
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
-	return data.Payload.Items.En, nil
+	return data.Payload.Items, nil
 }
 
 // FetchItemInfo Get item information.
@@ -53,7 +54,10 @@ func FetchItemInfo(urlName string) ([]Item, error) {
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
@@ -73,7 +77,10 @@ func FetchItemOrders(urlName string) ([]Order, error) {
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
@@ -105,7 +112,10 @@ func FetchItemStats(urlName string) (closedHours48 []Stat, closedDays90 []Stat, 
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
 	if data.Error != "" {
 		return nil, nil, nil, nil, errors.New(data.Error)
 	}
@@ -126,7 +136,10 @@ func FetchUser(userName string) (*Profile, error) {
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
@@ -148,7 +161,10 @@ func FetchUserOrders(userName string) (buy []Order, sell []Order, err error) {
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, nil, err
+	}
 	if data.Error != "" {
 		return nil, nil, errors.New(data.Error)
 	}
@@ -168,7 +184,10 @@ func FetchUserStats(userName string) ([]Order, error) {
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
@@ -184,11 +203,16 @@ func FetchUserReview(userName string) ([]Review, error) {
 	defer res.Body.Close()
 	data := struct {
 		Payload struct {
-			Reviews []Review `json:"reviews"`
+			Reviews          []Review `json:"reviews"`
+			TotalReviewCount int64    `json:"total_review_count"`
+			User             User     `json:"user"`
 		}
 		Error string
 	}{}
-	json.NewDecoder(res.Body).Decode(&data)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
 	if data.Error != "" {
 		return nil, errors.New(data.Error)
 	}
@@ -203,12 +227,14 @@ func SubWS(ch chan<- *Order) error {
 	h.Set("Accept-Language", "en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6")
 	h.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36")
 	h.Set("Cache-Control", "no-cache")
-
 	ws, _, err := websocket.DefaultDialer.Dial("wss://warframe.market/socket?platform=pc", h)
 	if err != nil {
 		return err
 	}
 	err = ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"@WS/SUBSCRIBE/MOST_RECENT"}`))
+	if err != nil {
+		return err
+	}
 	for {
 		result := &struct {
 			Type string
@@ -235,5 +261,4 @@ func SubWS(ch chan<- *Order) error {
 		}
 		ch <- &obj.Payload.Order
 	}
-	return nil
 }

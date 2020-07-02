@@ -2,13 +2,11 @@ package client
 
 import "time"
 
-// DropHow explains how to drop something
 type DropHow struct {
 	Link string `json:"link"`
 	Name string `json:"name"`
 }
 
-// ItemInfo human info
 type ItemInfo struct {
 	Drop        []DropHow `json:"drop"`
 	Codex       string    `json:"codex"`
@@ -17,7 +15,6 @@ type ItemInfo struct {
 	WikiLink    string    `json:"wiki_link"`
 }
 
-// Item is any warframe item
 type Item struct {
 	URLName      string    `json:"url_name"`
 	ID           string    `json:"id"`
@@ -34,74 +31,93 @@ type Item struct {
 	Info         *ItemInfo `json:"en"`
 }
 
-// User ...
 type User struct {
-	IngameName      string     `json:"ingame_name"`
-	LastSeen        *time.Time `json:"last_seen"`
-	ReputationBonus int        `json:"reputation_bonus"`
-	Reputation      int        `json:"reputation"`
-	Region          string     `json:"region"`
-	Status          string     `json:"status"`
-	ID              string     `json:"id"`
-	Avatar          string     `json:"avatar"`
+	IngameName      string         `json:"ingame_name"`
+	LastSeen        *time.Time     `json:"last_seen"`
+	ReputationBonus int            `json:"reputation_bonus"`
+	Reputation      int            `json:"reputation"`
+	Region          string         `json:"region"`
+	Avatar          *string        `json:"avatar"`
+	Status          string         `json:"status"`
+	ID              string         `json:"id"`
+	Anonymous       bool           `json:"anonymous"`
+	Role            string         `json:"role"`
+	Banned          bool           `json:"banned"`
+	HasMail         bool           `json:"has_mail"`
+	Verification    bool           `json:"verification"`
+	LinkedAccounts  LinkedAccounts `json:"linked_accounts"`
+	WrittenReviews  int            `json:"written_reviews"`
+	UnreadMessages  int            `json:"unread_messages"`
+	CheckCode       string         `json:"check_code"`
+	Platform        string         `json:"platform"`
 }
 
-// Order ...
+type LinkedAccounts struct {
+	SteamProfile   bool `json:"steam_profile"`
+	PatreonProfile bool `json:"patreon_profile"`
+	XboxProfile    bool `json:"xbox_profile"`
+}
+
 type Order struct {
 	Visible      bool       `json:"visible"`
-	CreationDate *time.Time `json:"creation_date"`
+	CreationDate string     `json:"creation_date"`
 	Quantity     int        `json:"quantity"`
-	User         *User      `json:"user"`
-	LastUpdate   *time.Time `json:"last_update"`
-	ClosedDate   *time.Time `json:"closed_date"`
+	User         User       `json:"user"`
+	LastUpdate   string     `json:"last_update"`
 	Platinum     float64    `json:"platinum"`
 	OrderType    string     `json:"order_type"`
 	Region       string     `json:"region"`
 	Platform     string     `json:"platform"`
 	ID           string     `json:"id"`
+	ClosedDate   *time.Time `json:"closed_date"`
 	ModRank      int        `json:"mod_rank"`
 	Item         *Item      `json:"item"`
 }
 
-// Stat ...
 type Stat struct {
 	Datetime    *time.Time `json:"datetime"`
-	Volume      int        `json:"volume"`
-	MinPrice    int        `json:"min_price"`
-	MaxPrice    int        `json:"max_price"`
-	OpenPrice   int        `json:"open_price"`
-	ClosedPrice int        `json:"closed_price"`
+	Volume      float64    `json:"volume"`
+	MinPrice    float64    `json:"min_price"`
+	MaxPrice    float64    `json:"max_price"`
+	OpenPrice   float64    `json:"open_price"`
+	ClosedPrice float64    `json:"closed_price"`
 	AvgPrice    float64    `json:"avg_price"`
 	WaPrice     float64    `json:"wa_price"`
 	Median      float64    `json:"median"`
 	MovingAvg   float64    `json:"moving_avg"`
-	DonchTop    int        `json:"donch_top"`
-	DonchBot    int        `json:"donch_bot"`
+	DonchTop    float64    `json:"donch_top"`
+	DonchBot    float64    `json:"donch_bot"`
 	ID          string     `json:"id"`
 }
 
-// Profile ...
 type Profile struct {
-	OwnProfile   bool       `json:"own_profile"`
-	Status       string     `json:"status"`
-	Background   string     `json:"background"`
-	Avatar       string     `json:"avatar"`
-	IngameName   string     `json:"ingame_name"`
-	About        string     `json:"about"`
-	Reputation   int        `json:"reputation"`
-	LastSeen     *time.Time `json:"last_seen"`
-	ID           string     `json:"id"`
-	Region       string     `json:"region"`
-	Achievements []string   `json:"achievements"` // Not yet sure if it is string
-	Platform     string     `json:"platform"`
+	OwnProfile bool       `json:"own_profile"`
+	Status     string     `json:"status"`
+	Background string     `json:"background"`
+	Avatar     string     `json:"avatar"`
+	IngameName string     `json:"ingame_name"`
+	About      string     `json:"about"`
+	Reputation int        `json:"reputation"`
+	LastSeen   *time.Time `json:"last_seen"`
+	ID         string     `json:"id"`
+	Region     string     `json:"region"`
+	Platform   string     `json:"platform"`
 }
 
-// Review ...
 type Review struct {
-	Date       time.Time `json:"date"`
-	UserFrom   *User     `json:"user_from"`
-	Text       string    `json:"text"`
-	ID         string    `json:"id"`
-	ReviewType int       `json:"review_type"`
-	Hidden     bool      `json:"hidden"`
+	Text       string   `json:"text"`
+	ReviewType int      `json:"review_type"`
+	ID         string   `json:"id"`
+	UserFrom   UserFrom `json:"user_from"`
+	Hidden     bool     `json:"hidden"`
+	Date       string   `json:"date"`
+}
+
+type UserFrom struct {
+	Reputation int     `json:"reputation"`
+	Region     string  `json:"region"`
+	ID         string  `json:"id"`
+	Avatar     *string `json:"avatar"`
+	IngameName string  `json:"ingame_name"`
+	Status     string  `json:"status"`
 }

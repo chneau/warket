@@ -49,5 +49,4 @@ func Test_All(t *testing.T) {
 		panic(err)
 	}
 	log.Println("User reviews:", len(reviews))
-
 }
