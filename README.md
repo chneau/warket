@@ -6,6 +6,10 @@ warframe.market client API
 # Doc
 Please find it [here](https://docs.google.com/document/d/1121cjBNN4BeZdMBGil6Qbuqse-sWpEXPpitQH5fb_Fo/edit#heading=h.irwashnbboeo).  
 
+Other links:
+- https://github.com/search?o=desc&q=api.warframe.market&s=updated&type=Repositories
+- https://github.com/LastExceed/WarframeMarKT
+
 # Easy install
 Install Chocolatey (sort of a package manager for Windows)  
 `https://chocolatey.org/install`  
