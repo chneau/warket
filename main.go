@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/atotto/clipboard"
-	"github.com/chneau/warket/pkg/client"
+	"github.com/chneau/warket/client"
 	"github.com/fatih/color"
 	"github.com/gen2brain/beeep"
 
@@ -71,21 +71,21 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				d := data{
-					buys:    c.Bool("buy"),
-					sells:   c.Bool("sell"),
-					logging: c.Int("log"),
-					t:       c.Int("t"),
-					sorting: c.String("sort"),
+				tc := TableContext{
+					Buys:        c.Bool("buy"),
+					Sells:       c.Bool("sell"),
+					LinesOfLogs: c.Int("log"),
+					TicksSecond: c.Int("t"),
+					Sorting:     c.String("sort"),
 				}
 				args := c.Args()
 				if args.Len() == 0 {
 					fmt.Println("Please provide username as parameter")
 					os.Exit(1)
 				} else {
-					d.username = args.First()
+					tc.Username = args.First()
 				}
-				d.run()
+				tc.Run()
 				return nil
 			},
 		},
@@ -118,14 +118,14 @@ func main() {
 				notficationEnabled := c.Bool("notification")
 				copyEnabled := c.Bool("copy")
 				log.Println("Sniping with a minimum gain of", minGain, "plat.")
-				ch := make(chan *client.Order)
+				ordersChan := make(chan *client.Order)
 				go func() {
-					err := client.SubWS(ch)
+					err := client.SubWS(ordersChan)
 					if err != nil {
 						log.Fatalln(err)
 					}
 				}()
-				for order := range ch {
+				for order := range ordersChan {
 					if order.OrderType != "sell" {
 						continue
 					}
