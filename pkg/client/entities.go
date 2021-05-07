@@ -21,7 +21,7 @@ type Item struct {
 	ItemName     string    `json:"item_name"`
 	Thumb        string    `json:"thumb"`
 	SubIcon      string    `json:"sub_icon"`
-	MasteryLevel string    `json:"mastery_level"`
+	MasteryLevel int       `json:"mastery_level"`
 	Tags         []string  `json:"tags"`
 	SetRoot      bool      `json:"set_root"`
 	Icon         string    `json:"icon"`
