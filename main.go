@@ -6,8 +6,10 @@ import (
 	"os"
 	"os/signal"
 	"sort"
+	"strconv"
 
 	"github.com/chneau/warket/pkg/client"
+	"github.com/fatih/color"
 
 	"github.com/urfave/cli/v2"
 )
@@ -89,8 +91,17 @@ func main() {
 			Name:    "snipe",
 			Aliases: []string{"s"},
 			Usage:   "snipe market",
+			Flags: []cli.Flag{
+				&cli.Float64Flag{
+					Value:   5,
+					Name:    "gain",
+					Aliases: []string{"g"},
+					Usage:   "minimum gain",
+				},
+			},
 			Action: func(c *cli.Context) error {
-				log.Println("hello world !")
+				minGain := c.Float64("gain")
+				log.Println("Sniping with a minimum gain of", minGain, "plat.")
 				ch := make(chan *client.Order)
 				go func() {
 					err := client.SubWS(ch)
@@ -106,7 +117,6 @@ func main() {
 					if err != nil {
 						log.Fatalln(err)
 					}
-					// TODO remove copy pasta and create a funciton
 					all := []float64{}
 					position := 1
 					for _, o := range orders {
@@ -127,9 +137,27 @@ func main() {
 					if len(all) > 10 {
 						all = all[:10]
 					}
-					// TODO nice formating
-					// TODO potential gain for buy/sell
-					log.Println(order.OrderType, order.Platinum, order.Item.URLName, position, all)
+					if len(all) < 2 {
+						continue
+					}
+					if all[0] > order.Platinum {
+						continue
+					}
+					gain := all[1] - order.Platinum
+					if gain < minGain {
+						continue
+					}
+
+					fmt.Println(
+						color.MagentaString(order.Item.Info.ItemName),
+						color.GreenString(strconv.Itoa(position)),
+						color.HiBlueString(fmt.Sprint(order.Platinum)),
+						color.CyanString(fmt.Sprint(all)),
+						color.HiRedString(fmt.Sprint("potential gain: ", gain)),
+					)
+
+					whisper := fmt.Sprint("/w ", order.User.IngameName, " Hi! I want to buy: ", order.Item.Info.ItemName, " for ", order.Platinum, " platinum. (warframe.market)")
+					fmt.Println(whisper)
 				}
 				return nil
 			},

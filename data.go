@@ -56,33 +56,33 @@ func (d *data) run() {
 }
 
 func (d *data) prepare() string {
-	bb, ss, err := client.FetchUserOrders(d.username)
+	buys, sells, err := client.FetchUserOrders(d.username)
 	if err != nil {
 		panic(err)
 	}
-	all := append(bb, ss...)
-	res := ""
+	all := append(buys, sells...)
+	result := ""
 	if d.sells {
-		lll := newLines(d.username, all, "sell")
-		d.logs = append(lll.diff(d.lastSells), d.logs...)
-		d.lastSells = &lll
-		lll.sort(d.sorting)
-		res += lll.String()
+		lines := newLines(d.username, all, "sell")
+		d.logs = append(lines.diff(d.lastSells), d.logs...)
+		d.lastSells = &lines
+		lines.sort(d.sorting)
+		result += lines.String()
 	}
 	if d.buys {
-		lll := newLines(d.username, all, "buy")
-		d.logs = append(lll.diff(d.lastBuys), d.logs...)
-		d.lastBuys = &lll
-		lll.sort(d.sorting)
-		res += lll.String()
+		lines := newLines(d.username, all, "buy")
+		d.logs = append(lines.diff(d.lastBuys), d.logs...)
+		d.lastBuys = &lines
+		lines.sort(d.sorting)
+		result += lines.String()
 	}
 	if len(d.logs) > d.logging {
 		d.logs = d.logs[:d.logging]
 	}
 	if d.logging > 0 {
-		res += "\n" + strings.Join(d.logs, "\n") + "\n"
+		result += "\n" + strings.Join(d.logs, "\n") + "\n"
 	}
-	return res
+	return result
 }
 
 func (d *data) String() string {
