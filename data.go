@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"os"
 	"strconv"
 	"strings"
@@ -33,18 +33,18 @@ type data struct {
 }
 
 func (d *data) run() {
-	out := colorable.NewColorable(os.Stdout)
+	goterm.Output = bufio.NewWriter(colorable.NewColorable(os.Stdout))
 
 	if d.t < 0 {
-		fmt.Fprint(out, d.prepare())
+		goterm.Print(d.prepare())
+		goterm.Flush()
 		return
 	}
 	for {
 		goterm.Clear()
-		goterm.MoveCursor(0, 0)
-		str := d.prepare()
+		goterm.MoveCursor(1, 1)
+		goterm.Print(d.prepare())
 		goterm.Flush()
-		fmt.Fprint(out, str)
 		bar := progressbar.New(d.t)
 		_ = bar.RenderBlank()
 		for i := 0; i < d.t; i++ {
