@@ -20,13 +20,6 @@ func floatsToStrings(floats []float64) (strings []string) {
 	return
 }
 
-func intsToStrings(ints []int) (strings []string) {
-	for i := range ints {
-		strings = append(strings, strconv.Itoa(ints[i]))
-	}
-	return
-}
-
 type data struct {
 	username  string
 	sells     bool
@@ -53,12 +46,12 @@ func (d *data) run() {
 		goterm.Flush()
 		fmt.Fprint(out, str)
 		bar := progressbar.New(d.t)
-		bar.RenderBlank()
+		_ = bar.RenderBlank()
 		for i := 0; i < d.t; i++ {
 			time.Sleep(time.Second)
-			bar.Add(1)
+			_ = bar.Add(1)
 		}
-		bar.Clear()
+		_ = bar.Clear()
 	}
 }
 
