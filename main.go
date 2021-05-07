@@ -8,8 +8,10 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/atotto/clipboard"
 	"github.com/chneau/warket/pkg/client"
 	"github.com/fatih/color"
+	"github.com/gen2brain/beeep"
 
 	"github.com/urfave/cli/v2"
 )
@@ -98,9 +100,23 @@ func main() {
 					Aliases: []string{"g"},
 					Usage:   "minimum gain",
 				},
+				&cli.BoolFlag{
+					Value:   true,
+					Name:    "notification",
+					Aliases: []string{"n"},
+					Usage:   "notification",
+				},
+				&cli.BoolFlag{
+					Value:   true,
+					Name:    "copy",
+					Aliases: []string{"c"},
+					Usage:   "copy message",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				minGain := c.Float64("gain")
+				notficationEnabled := c.Bool("notification")
+				copyEnabled := c.Bool("copy")
 				log.Println("Sniping with a minimum gain of", minGain, "plat.")
 				ch := make(chan *client.Order)
 				go func() {
@@ -158,6 +174,14 @@ func main() {
 
 					whisper := fmt.Sprint("/w ", order.User.IngameName, " Hi! I want to buy: ", order.Item.Info.ItemName, " for ", order.Platinum, " platinum. (warframe.market)")
 					fmt.Println(whisper)
+
+					if notficationEnabled {
+						_ = beeep.Notify(order.Item.Info.ItemName, fmt.Sprint("At ", order.Platinum, "p for a gain of ", gain), "assets/information.png")
+					}
+
+					if copyEnabled {
+						_ = clipboard.WriteAll(whisper)
+					}
 				}
 				return nil
 			},
