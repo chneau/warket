@@ -9,5 +9,5 @@ require (
 	github.com/mattn/go-colorable v0.1.8
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/schollz/progressbar/v3 v3.8.0
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli/v2 v2.3.0
 )

@@ -9,7 +9,7 @@ import (
 
 	"github.com/chneau/warket/pkg/client"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
@@ -30,31 +30,37 @@ func main() {
 	app.Name = "warket"
 	app.Usage = "market tool for the game Warframe"
 	app.Version = "0.0.1"
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		{
 			Name:    "watch",
 			Aliases: []string{"w"},
 			Usage:   "watch a market player",
 			Flags: []cli.Flag{
-				cli.BoolTFlag{
-					Name:  "buy, b",
-					Usage: "show buys",
+				&cli.BoolFlag{
+					Value:   true,
+					Name:    "buy",
+					Aliases: []string{"b"},
+					Usage:   "show buys",
 				},
-				cli.BoolTFlag{
-					Name:  "sell, s",
-					Usage: "show sells`",
+				&cli.BoolFlag{
+					Value:   true,
+					Name:    "sell",
+					Aliases: []string{"s"},
+					Usage:   "show sells`",
 				},
-				cli.IntFlag{
-					Name:  "log, l",
-					Value: 10,
-					Usage: "show `N` last events`",
+				&cli.IntFlag{
+					Name:    "log",
+					Aliases: []string{"l"},
+					Value:   10,
+					Usage:   "show `N` last events`",
 				},
-				cli.IntFlag{
-					Name:  "time, t",
-					Value: -1,
-					Usage: "timer to loop, disabled if -1",
+				&cli.IntFlag{
+					Name:    "time",
+					Aliases: []string{"t"},
+					Value:   -1,
+					Usage:   "timer to loop, disabled if -1",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "sort",
 					Value: "name",
 					Usage: "sort by `COLUMN`",
@@ -62,18 +68,18 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 				d := data{
-					buys:    c.BoolT("buy"),
-					sells:   c.BoolT("sell"),
+					buys:    c.Bool("buy"),
+					sells:   c.Bool("sell"),
 					logging: c.Int("log"),
 					t:       c.Int("t"),
 					sorting: c.String("sort"),
 				}
 				args := c.Args()
-				if len(args) == 0 {
+				if args.Len() == 0 {
 					fmt.Println("Please provide username as parameter")
 					os.Exit(1)
 				} else {
-					d.username = args[0]
+					d.username = args.First()
 				}
 				d.run()
 				return nil
