@@ -4,6 +4,8 @@
 
 warframe.market client API
 
+https://warframe.market/api_docs
+
 ## dev
 
 ```bash
