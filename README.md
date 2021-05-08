@@ -2,8 +2,6 @@
 
 warframe.market client API
 
-https://warframe.market/api_docs
-
 ## dev
 
 ```bash
@@ -19,6 +17,7 @@ Other links:
 
 - https://github.com/search?o=desc&q=api.warframe.market&s=updated&type=Repositories
 - https://github.com/LastExceed/WarframeMarKT
+- https://warframe.market/api_docs
 
 ## weird console output
 
@@ -35,7 +34,7 @@ Then, install Go.
 `choco install golang`
 
 Then, install this repo.  
-`GO111MODULE=on go get -u -v github.com/chneau/warket`
+`go install -v github.com/chneau/warket`
 
 If on Windows, be sure to have this in your PATH system environment variable:  
 `%userprofile%\go\bin`
