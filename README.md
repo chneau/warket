@@ -34,7 +34,7 @@ Then, install Go.
 `choco install golang`
 
 Then, install this repo.  
-`go install -v github.com/chneau/warket`
+`go install -v github.com/chneau/warket@latest`
 
 If on Windows, be sure to have this in your PATH system environment variable:  
 `%userprofile%\go\bin`
