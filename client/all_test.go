@@ -31,7 +31,7 @@ func Test_All(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Profile:", profile)
+	log.Println("Profile:", profile.IngameName)
 	buy, sell, err := FetchUserOrders(orders[0].User.IngameName)
 	if err != nil {
 		panic(err)
@@ -43,7 +43,6 @@ func Test_All(t *testing.T) {
 		panic(err)
 	}
 	log.Println("Stats for user:", len(stats))
-	log.Println(stats)
 	reviews, err := FetchUserReview(orders[0].User.IngameName)
 	if err != nil {
 		panic(err)
