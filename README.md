@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/chneau/warket.svg?branch=master)](https://travis-ci.org/chneau/warket)
-
 # warket
 
 warframe.market client API
