@@ -19,6 +19,14 @@ Other links:
 - https://github.com/LastExceed/WarframeMarKT
 - https://warframe.market/api_docs
 
+```bash
+# interesting path
+/profile/orders # POST to create a new order
+# payload: {"order_type":"sell","item_id":"54a74455e779892d5e5156cc","platinum":210,"quantity":1,"visible":false,"rank":1}
+/profile/orders/{orderId} # PUT to update an already existing order
+# payload: {order_id: "60965e5dea937404198b037c", platinum: 211, quantity: 1, visible: false, rank: 1}
+```
+
 ## weird console output
 
 Please run warket like this `winpty warket ...`
