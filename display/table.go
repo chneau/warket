@@ -1,9 +1,8 @@
 package display
 
 import (
+	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"math"
 	"sort"
 	"strconv"
@@ -13,6 +12,8 @@ import (
 	"github.com/chneau/warket/client"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 type Row struct {
@@ -98,31 +99,30 @@ func (t Table) String() string {
 			strings.Join(floatsToStrings(row.Bests), " "),
 		})
 	}
-	reader, writer := io.Pipe()
-	table := tablewriter.NewWriter(writer)
-	table.SetHeader([]string{"Item", "#", "N°", "$", "±", "best " + t.OrderType})
-	table.SetColWidth(math.MaxInt64)
-	table.SetBorder(false)
-	table.SetColumnColor(
-		tablewriter.Colors{tablewriter.FgMagentaColor},
-		tablewriter.Colors{tablewriter.FgWhiteColor},
-		tablewriter.Colors{tablewriter.FgGreenColor},
-		tablewriter.Colors{tablewriter.FgHiBlueColor},
-		tablewriter.Colors{tablewriter.FgHiRedColor},
-		tablewriter.Colors{tablewriter.FgCyanColor},
+	var buf bytes.Buffer
+	table := tablewriter.NewTable(&buf,
+		tablewriter.WithRenderer(renderer.NewColorized(renderer.ColorizedConfig{
+			Borders: tw.Border{Left: tw.Off, Right: tw.Off, Top: tw.Off, Bottom: tw.Off},
+			Column: renderer.Tint{
+				Columns: []renderer.Tint{
+					{FG: renderer.Colors{color.FgMagenta}},
+					{FG: renderer.Colors{color.FgWhite}},
+					{FG: renderer.Colors{color.FgGreen}},
+					{FG: renderer.Colors{color.FgHiBlue}},
+					{FG: renderer.Colors{color.FgHiRed}},
+					{FG: renderer.Colors{color.FgCyan}},
+				},
+			},
+		})),
 	)
-	table.AppendBulk(data)
-	result := make(chan string)
-	go func() {
-		b, err := ioutil.ReadAll(reader)
-		if err != nil {
-			panic(err)
-		}
-		result <- string(b)
-	}()
-	table.Render()
-	writer.Close()
-	return <-result
+	table.Header([]string{"Item", "#", "N°", "$", "±", "best " + t.OrderType})
+	if err := table.Bulk(data); err != nil {
+		panic(err)
+	}
+	if err := table.Render(); err != nil {
+		panic(err)
+	}
+	return buf.String()
 }
 
 func (t Table) Sort(sorting string) {
@@ -175,14 +175,14 @@ func NewTable(username string, orders []client.Order, orderType string) Table {
 			if i.OrderType != orderType {
 				continue
 			}
-			orders, err := client.FetchItemOrders(i.Item.URLName)
+			orders, err := client.FetchItemOrders(i.Item.URLName())
 			if err != nil {
 				panic(err)
 			}
 			all := []float64{}
 			position := 1
 			for _, o := range orders {
-				if o.User.Status == "ingame" && o.OrderType == i.OrderType && o.ModRank == i.ModRank && o.User.IngameName != username && o.Region == i.Region {
+				if o.User.Status == "ingame" && o.OrderType == i.OrderType && o.ModRank == i.ModRank && o.User.IngameName != username {
 					all = append(all, o.Platinum)
 					if i.OrderType == "buy" {
 						if o.Platinum > i.Platinum {
@@ -206,7 +206,7 @@ func NewTable(username string, orders []client.Order, orderType string) Table {
 			if len(all) > 0 {
 				diff = i.Platinum - all[0]
 			}
-			itemName := i.Item.Info.ItemName
+			itemName := i.Item.Name()
 			if i.ModRank != 0 {
 				itemName = itemName + " " + strconv.Itoa(i.ModRank)
 			}

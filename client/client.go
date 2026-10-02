@@ -2,263 +2,225 @@ package client
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
+	"io"
 	"net/http"
+	"net/url"
+	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 const (
-	// Root url.
-	Root = "https://api.warframe.market/v1"
+	// Root is the warframe.market v2 API root.
+	Root = "https://api.warframe.market/v2"
+	// WSRoot is the realtime WebSocket endpoint.
+	WSRoot = "wss://ws.warframe.market/socket"
+	// Platform is the marketplace platform used by this client.
+	Platform = "pc"
 )
 
 // H ...
 type H map[string]interface{}
 
-// FetchItems Get all item names
+// envelope is the common v2 response envelope:
+// {"apiVersion": "...", "data": ..., "error": ...}
+type envelope struct {
+	APIVersion string          `json:"apiVersion"`
+	Data       json.RawMessage `json:"data"`
+	Error      json.RawMessage `json:"error"`
+}
+
+// getJSON performs a GET request against the v2 API, unwraps the response
+// envelope and decodes data into out.
+func getJSON(path string, out interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, Root+path, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Platform", Platform)
+	req.Header.Set("Language", "en")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "warket (github.com/chneau/warket)")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		b, _ := io.ReadAll(io.LimitReader(res.Body, 512))
+		return fmt.Errorf("GET %s: %s: %s", path, res.Status, string(b))
+	}
+	env := envelope{}
+	if err := json.NewDecoder(res.Body).Decode(&env); err != nil {
+		return err
+	}
+	if len(env.Error) > 0 && string(env.Error) != "null" {
+		return fmt.Errorf("GET %s: %s", path, string(env.Error))
+	}
+	if out == nil {
+		return nil
+	}
+	return json.Unmarshal(env.Data, out)
+}
+
+var (
+	itemsOnce   sync.Once
+	itemsErr    error
+	itemsByID   map[string]*Item
+	itemsBySlug map[string]*Item
+)
+
+// loadItems fetches and caches the full item list once. v2 order responses
+// only carry an itemId, so the cache is used to re-attach item details.
+func loadItems() error {
+	itemsOnce.Do(func() {
+		var items []*Item
+		if err := getJSON("/items", &items); err != nil {
+			itemsErr = err
+			return
+		}
+		itemsByID = make(map[string]*Item, len(items))
+		itemsBySlug = make(map[string]*Item, len(items))
+		for _, it := range items {
+			itemsByID[it.ID] = it
+			itemsBySlug[it.Slug] = it
+		}
+	})
+	return itemsErr
+}
+
+// resolveItem attaches the cached item to an order when possible.
+func resolveItem(o *Order) {
+	if o.Item == nil && o.ItemID != "" {
+		o.Item = itemsByID[o.ItemID]
+	}
+}
+
+// FetchItems Get all item names.
 func FetchItems() ([]Item, error) {
-	res, err := http.Get(Root + "/items")
-	if err != nil {
+	if err := loadItems(); err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			Items []Item
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, err
+	items := make([]Item, 0, len(itemsByID))
+	for _, it := range itemsByID {
+		items = append(items, *it)
 	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
-	}
-	return data.Payload.Items, nil
+	return items, nil
 }
 
-// FetchItemInfo Get item information.
+// FetchItemInfo Get the item and the other items in its set.
 func FetchItemInfo(urlName string) ([]Item, error) {
-	res, err := http.Get(Root + "/items/" + urlName)
-	if err != nil {
+	var data struct {
+		ID    string  `json:"id"`
+		Items []*Item `json:"items"`
+	}
+	if err := getJSON("/item/"+url.PathEscape(urlName)+"/set", &data); err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			Item struct {
-				ItemInSet []Item `json:"items_in_set"`
-			}
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, err
+	items := make([]Item, 0, len(data.Items))
+	for _, it := range data.Items {
+		items = append(items, *it)
 	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
-	}
-	return data.Payload.Item.ItemInSet, nil
+	return items, nil
 }
 
-// FetchItemOrders Get orders for item.
+// FetchItemOrders Get visible orders for an item.
 func FetchItemOrders(urlName string) ([]Order, error) {
-	res, err := http.Get(Root + "/items/" + urlName + "/orders")
-	if err != nil {
+	if err := loadItems(); err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			Orders []Order
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
+	var orders []Order
+	if err := getJSON("/orders/item/"+url.PathEscape(urlName), &orders); err != nil {
 		return nil, err
 	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
+	for i := range orders {
+		resolveItem(&orders[i])
 	}
-	return data.Payload.Orders, nil
+	return orders, nil
 }
 
-// FetchItemStats Get orders for item.
-// In order:
-// Closed H48
-// Closed D90
-// Live H48
-// Live D90
-func FetchItemStats(urlName string) (closedHours48 []Stat, closedDays90 []Stat, LiveHours48 []Stat, LiveDays90 []Stat, err error) {
-	res, err := http.Get(Root + "/items/" + urlName + "/statistics")
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			StatisticsClosed struct {
-				Hours48 []Stat `json:"48hours"`
-				Days90  []Stat `json:"90days"`
-			} `json:"statistics_closed"`
-			StatisticsLive struct {
-				Hours48 []Stat `json:"48hours"`
-				Days90  []Stat `json:"90days"`
-			} `json:"statistics_live"`
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-	if data.Error != "" {
-		return nil, nil, nil, nil, errors.New(data.Error)
-	}
-	return data.Payload.StatisticsClosed.Hours48, data.Payload.StatisticsClosed.Days90,
-		data.Payload.StatisticsLive.Hours48, data.Payload.StatisticsLive.Days90, nil
-}
-
-// FetchUser Get user profile.
-func FetchUser(userName string) (*Profile, error) {
-	res, err := http.Get(Root + "/profile/" + userName)
-	if err != nil {
+// FetchUser Get a user's public profile.
+func FetchUser(userName string) (*User, error) {
+	user := &User{}
+	if err := getJSON("/user/"+url.PathEscape(userName), user); err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			Profile *Profile
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
-	}
-	return data.Payload.Profile, nil
+	return user, nil
 }
 
-// FetchUserOrders Get user orders.
-// Buy, then, Sell
+// FetchUserOrders Get a user's orders, split into buy and sell.
 func FetchUserOrders(userName string) (buy []Order, sell []Order, err error) {
-	res, err := http.Get(Root + "/profile/" + userName + "/orders")
-	if err != nil {
+	if err := loadItems(); err != nil {
 		return nil, nil, err
 	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			BuyOrders  []Order `json:"buy_orders"`
-			SellOrders []Order `json:"sell_orders"`
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
+	var orders []Order
+	if err := getJSON("/orders/user/"+url.PathEscape(userName), &orders); err != nil {
 		return nil, nil, err
 	}
-	if data.Error != "" {
-		return nil, nil, errors.New(data.Error)
-	}
-	return data.Payload.BuyOrders, data.Payload.SellOrders, nil
-}
-
-// FetchUserStats Get user statistics.
-func FetchUserStats(userName string) ([]Order, error) {
-	res, err := http.Get(Root + "/profile/" + userName + "/statistics")
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			ClosedOrders []Order `json:"closed_orders"`
+	for i := range orders {
+		resolveItem(&orders[i])
+		switch orders[i].OrderType {
+		case "buy":
+			buy = append(buy, orders[i])
+		case "sell":
+			sell = append(sell, orders[i])
 		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, err
 	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
-	}
-	return data.Payload.ClosedOrders, nil
+	return buy, sell, nil
 }
 
-// FetchUserReview Get user reviews.
-func FetchUserReview(userName string) ([]Review, error) {
-	res, err := http.Get(Root + "/profile/" + userName + "/reviews")
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	data := struct {
-		Payload struct {
-			Reviews          []Review `json:"reviews"`
-			TotalReviewCount int64    `json:"total_review_count"`
-			User             User     `json:"user"`
-		}
-		Error string
-	}{}
-	err = json.NewDecoder(res.Body).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-	if data.Error != "" {
-		return nil, errors.New(data.Error)
-	}
-	return data.Payload.Reviews, nil
-}
-
+// SubWS subscribes to the realtime feed of newly posted orders and forwards
+// each one on ch until the connection drops.
 func SubWS(ch chan<- *Order) error {
-	h := http.Header{}
-	h.Set("Pragma", "no-cache")
-	h.Set("Origin", "https://warframe.market")
-	h.Set("Accept-Encoding", "gzip, deflate, br")
-	h.Set("Accept-Language", "en-GB,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6")
-	h.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36")
-	h.Set("Cache-Control", "no-cache")
-	ws, _, err := websocket.DefaultDialer.Dial("wss://warframe.market/socket?platform=pc", h)
+	if err := loadItems(); err != nil {
+		return err
+	}
+	dialer := websocket.Dialer{
+		Subprotocols:     []string{"wfm"},
+		HandshakeTimeout: 15 * time.Second,
+	}
+	ws, _, err := dialer.Dial(WSRoot, nil)
 	if err != nil {
 		return err
 	}
-	err = ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"@WS/SUBSCRIBE/MOST_RECENT"}`))
+	defer ws.Close()
+
+	sub, err := json.Marshal(H{
+		"route": "@wfm|cmd/subscribe/newOrders",
+		"id":    "1",
+		"payload": H{
+			"platform": Platform,
+		},
+	})
 	if err != nil {
 		return err
 	}
+	if err := ws.WriteMessage(websocket.TextMessage, sub); err != nil {
+		return err
+	}
+
 	for {
-		result := &struct {
-			Type string
-		}{}
 		_, b, err := ws.ReadMessage()
 		if err != nil {
 			return err
 		}
-		err = json.Unmarshal(b, result)
-		if err != nil {
+		msg := struct {
+			Route   string          `json:"route"`
+			Payload json.RawMessage `json:"payload"`
+		}{}
+		if err := json.Unmarshal(b, &msg); err != nil {
 			return err
 		}
-		if result.Type != `@WS/SUBSCRIPTIONS/MOST_RECENT/NEW_ORDER` {
+		if msg.Route != "@wfm|event/subscriptions/newOrder" {
 			continue
 		}
-		obj := &struct {
-			Payload struct {
-				Order Order
-			}
-		}{}
-		err = json.Unmarshal(b, obj)
-		if err != nil {
+		order := &Order{}
+		if err := json.Unmarshal(msg.Payload, order); err != nil {
 			return err
 		}
-		ch <- &obj.Payload.Order
+		resolveItem(order)
+		ch <- order
 	}
 }

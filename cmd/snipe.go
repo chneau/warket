@@ -29,14 +29,14 @@ func Snipe(c *cli.Context) error {
 		if order.OrderType != "sell" {
 			continue
 		}
-		orders, err := client.FetchItemOrders(order.Item.URLName)
+		orders, err := client.FetchItemOrders(order.Item.URLName())
 		if err != nil {
 			log.Fatalln(err)
 		}
 		all := []float64{}
 		position := 1
 		for _, o := range orders {
-			if o.User.Status == "ingame" && o.OrderType == order.OrderType && o.ModRank == order.ModRank && o.Region == order.Region {
+			if o.User.Status == "ingame" && o.OrderType == order.OrderType && o.ModRank == order.ModRank {
 				all = append(all, o.Platinum)
 				if order.OrderType == "buy" {
 					if o.Platinum > order.Platinum {
@@ -65,18 +65,18 @@ func Snipe(c *cli.Context) error {
 		}
 
 		fmt.Println(
-			color.MagentaString(order.Item.Info.ItemName),
+			color.MagentaString(order.Item.Name()),
 			color.GreenString(strconv.Itoa(position)),
 			color.HiBlueString(fmt.Sprint(order.Platinum)),
 			color.CyanString(fmt.Sprint(all)),
 			color.HiRedString(fmt.Sprint("potential gain: ", gain)),
 		)
 
-		whisper := fmt.Sprint("/w ", order.User.IngameName, " Hi! I want to buy: ", order.Item.Info.ItemName, " for ", order.Platinum, " platinum. (warframe.market)")
+		whisper := fmt.Sprint("/w ", order.User.IngameName, " Hi! I want to buy: ", order.Item.Name(), " for ", order.Platinum, " platinum. (warframe.market)")
 		fmt.Println(whisper)
 
 		if notficationEnabled {
-			_ = beeep.Notify(order.Item.Info.ItemName, fmt.Sprint("At ", order.Platinum, "p for a gain of ", gain), "assets/information.png")
+			_ = beeep.Notify(order.Item.Name(), fmt.Sprint("At ", order.Platinum, "p for a gain of ", gain), "assets/information.png")
 		}
 
 		if copyEnabled {
